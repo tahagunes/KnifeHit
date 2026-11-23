@@ -1,0 +1,43 @@
+# Unity generated files
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+[Aa]rt/
+[Aa]ssemblies/
+
+# User-specific files
+UserSettings/
+.vscode/
+
+# IDE
+.idea/
+*.swp
+*.swo
+*.swn
+*.VS/
+.vs/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project files
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+
+# Rider
+.Rider/
