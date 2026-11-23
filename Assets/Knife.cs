@@ -1,0 +1,73 @@
+using UnityEngine;
+
+public class Knife : MonoBehaviour
+{
+    [SerializeField] private float throwSpeed = 20f;
+    [SerializeField] private float stickDepth = 0.3f;
+
+    private Rigidbody2D rb;
+    private bool isThrown = false;
+    private bool isStuck = false;
+    private bool hasFailed = false;
+
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    public void Throw()
+    {
+        // 1. isThrown'u true yap
+        // 2. Rigidbody'ye yukarı doğru throwSpeed hızında bir hız ver
+        if (!isThrown)
+        {
+            isThrown = true;
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            rb.linearVelocity = Vector2.up * throwSpeed;
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+       if (isStuck || hasFailed) return;
+
+        if (collision.gameObject.CompareTag("Target"))
+        {
+            isStuck = true;
+            rb.linearVelocity = Vector2.zero;
+            rb.bodyType = RigidbodyType2D.Kinematic;
+
+            Collider2D targetCollider = collision.collider;
+            Vector2 center = targetCollider.bounds.center;
+            float radius = targetCollider.bounds.extents.x;
+            Vector2 outward = ((Vector2)transform.position - center).normalized;
+
+            float halfLength = transform.lossyScale.y * 0.5f;
+            transform.rotation = Quaternion.FromToRotation(Vector3.up, -outward);
+            transform.position = center + outward * (radius + halfLength - stickDepth);
+
+            transform.SetParent(collision.transform, true);
+        }
+        else if (collision.gameObject.CompareTag("Knife"))
+        {
+            Debug.Log("Game Over");
+             Fail();
+        }
+    }
+
+    void Fail()
+    {
+        hasFailed = true;
+
+        GetComponent<Collider2D>().enabled = false;
+
+        rb.constraints = RigidbodyConstraints2D.None;
+        rb.gravityScale = 3f;
+        rb.linearVelocity = new Vector2(Random.Range(-3f, 3f), -5f);
+        rb.angularVelocity = Random.Range(-720f, 720f);
+
+        Destroy(gameObject, 2f);
+
+        Debug.Log("Game Over");
+    }
+}
