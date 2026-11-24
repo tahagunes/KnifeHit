@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using DG.Tweening;
 
 public class Knife : MonoBehaviour
 {
@@ -20,8 +21,7 @@ public class Knife : MonoBehaviour
 
     public void Throw()
     {
-        // 1. isThrown'u true yap
-        // 2. Rigidbody'ye yukarı doğru throwSpeed hızında bir hız ver
+        transform.DOKill();
         if (!isThrown)
         {
             isThrown = true;

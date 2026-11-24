@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -27,8 +28,10 @@ public class KnifeThrower : MonoBehaviour
         }
     }
 
-    void SpawnKnife()
-{
-    currentKnife = Instantiate(knifePrefab, transform.position, Quaternion.identity);
-}
+   void SpawnKnife()
+    {
+        Vector3 startPos = transform.position + Vector3.down * 1.5f;
+        currentKnife = Instantiate(knifePrefab, startPos, Quaternion.identity);
+        currentKnife.transform.DOMove(transform.position, 0.15f).SetEase(Ease.OutQuad);
+    }
 }
