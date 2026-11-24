@@ -96,4 +96,5 @@ public class LevelData
     public int knifeCount = 7;
     public float rotationSpeed = 150f;
     public int appleCount = 1;
+    public int obstacleKnives = 0;
 }

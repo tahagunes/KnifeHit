@@ -5,6 +5,7 @@ public class LevelBuilder : MonoBehaviour
     [SerializeField] private GameManager gameManager;
     [SerializeField] private Transform target;
     [SerializeField] private Apple applePrefab;
+    [SerializeField] private Knife knifePrefab;
 
     void Start()
     {
@@ -19,6 +20,15 @@ public class LevelBuilder : MonoBehaviour
 
             Apple apple = Instantiate(applePrefab, position, Quaternion.identity);
             apple.transform.SetParent(target, true);
+        }
+
+        int obstacleCount = gameManager.CurrentLevelData.obstacleKnives;
+
+        for (int i = 0; i < obstacleCount; i++)
+        {
+            float angle = Random.Range(0f, 360f);
+            Knife knife = Instantiate(knifePrefab);
+            knife.PlaceOnTarget(target, angle);
         }
     }
 }

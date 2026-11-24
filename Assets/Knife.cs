@@ -49,34 +49,51 @@ public class Knife : MonoBehaviour
     }
 
     void OnCollisionEnter2D(Collision2D collision)
+{
+    if (isStuck || hasFailed) return;
+
+    if (collision.gameObject.CompareTag("Target"))
     {
-       if (isStuck || hasFailed) return;
+        Vector2 hitPoint = collision.GetContact(0).point;
 
-        if (collision.gameObject.CompareTag("Target"))
-        {
-            Vector2 hitPoint = collision.GetContact(0).point;
-            isStuck = true;
-            rb.linearVelocity = Vector2.zero;
-            rb.bodyType = RigidbodyType2D.Kinematic;
+        Collider2D targetCollider = collision.collider;
+        Vector2 center = targetCollider.bounds.center;
+        float radius = targetCollider.bounds.extents.x;
+        Vector2 outward = ((Vector2)transform.position - center).normalized;
 
-            Collider2D targetCollider = collision.collider;
-            Vector2 center = targetCollider.bounds.center;
-            float radius = targetCollider.bounds.extents.x;
-            Vector2 outward = ((Vector2)transform.position - center).normalized;
-
-            float halfLength = transform.lossyScale.y * 0.5f;
-            transform.rotation = Quaternion.FromToRotation(Vector3.up, -outward);
-            transform.position = center + outward * (radius + halfLength - stickDepth);
-
-            transform.SetParent(collision.transform, true);
-            Stuck?.Invoke(hitPoint);
-        }
-        else if (collision.gameObject.CompareTag("Knife"))
-        {
-            Failed?.Invoke();
-            Fail();
-        }
+        StickTo(collision.transform, center, radius, outward);
+        Stuck?.Invoke(hitPoint);
     }
+    else if (collision.gameObject.CompareTag("Knife"))
+    {
+        Fail();
+    }
+}
+
+public void PlaceOnTarget(Transform target, float angleDegrees)
+{
+    CircleCollider2D targetCollider = target.GetComponent<CircleCollider2D>();
+    Vector2 center = target.position;
+    float radius = targetCollider.radius * target.lossyScale.x;
+
+    float angle = angleDegrees * Mathf.Deg2Rad;
+    Vector2 outward = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+
+    StickTo(target, center, radius, outward);
+}
+
+private void StickTo(Transform target, Vector2 center, float radius, Vector2 outward)
+{
+    isStuck = true;
+    rb.linearVelocity = Vector2.zero;
+    rb.bodyType = RigidbodyType2D.Kinematic;
+
+    float halfLength = transform.lossyScale.y * 0.5f;
+    transform.rotation = Quaternion.FromToRotation(Vector3.up, -outward);
+    transform.position = center + outward * (radius + halfLength - stickDepth);
+
+    transform.SetParent(target, true);
+}
 
     void Fail()
     {
@@ -91,6 +108,6 @@ public class Knife : MonoBehaviour
 
         Destroy(gameObject, 2f);
 
-        Debug.Log("Game Over");
+        Failed?.Invoke();
     }
 }
