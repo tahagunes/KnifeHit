@@ -6,6 +6,7 @@ public class Knife : MonoBehaviour
 {
     [SerializeField] private float throwSpeed = 20f;
     [SerializeField] private float stickDepth = 0.3f;
+    public static event Action Thrown;
 
     private Rigidbody2D rb;
     private bool isThrown = false;
@@ -27,6 +28,7 @@ public class Knife : MonoBehaviour
             isThrown = true;
             rb.bodyType = RigidbodyType2D.Dynamic;
             rb.linearVelocity = Vector2.up * throwSpeed;
+            Thrown?.Invoke();
         }
     }
 
