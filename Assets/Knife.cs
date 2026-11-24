@@ -11,7 +11,7 @@ public class Knife : MonoBehaviour
     private bool isThrown = false;
     private bool isStuck = false;
     private bool hasFailed = false;
-    public static event Action Stuck;
+    public static event Action<Vector2> Stuck;
     public static event Action Failed;
 
     void Awake()
@@ -30,12 +30,29 @@ public class Knife : MonoBehaviour
         }
     }
 
+    public void FlyOff(Vector2 center)
+    {
+        transform.SetParent(null);
+        GetComponent<Collider2D>().enabled = false;
+
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        rb.constraints = RigidbodyConstraints2D.None;
+        rb.gravityScale = 2f;
+
+        Vector2 direction = ((Vector2)transform.position - center).normalized;
+        rb.linearVelocity = direction * UnityEngine.Random.Range(4f, 7f) + Vector2.up * 3f;
+        rb.angularVelocity = UnityEngine.Random.Range(-720f, 720f);
+
+        Destroy(gameObject, 2f);
+    }
+
     void OnCollisionEnter2D(Collision2D collision)
     {
        if (isStuck || hasFailed) return;
 
         if (collision.gameObject.CompareTag("Target"))
         {
+            Vector2 hitPoint = collision.GetContact(0).point;
             isStuck = true;
             rb.linearVelocity = Vector2.zero;
             rb.bodyType = RigidbodyType2D.Kinematic;
@@ -50,7 +67,7 @@ public class Knife : MonoBehaviour
             transform.position = center + outward * (radius + halfLength - stickDepth);
 
             transform.SetParent(collision.transform, true);
-            Stuck?.Invoke();
+            Stuck?.Invoke(hitPoint);
         }
         else if (collision.gameObject.CompareTag("Knife"))
         {

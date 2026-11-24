@@ -21,6 +21,7 @@ public class GameUI : MonoBehaviour
         panel.SetActive(true);
         panel.transform.localScale = Vector3.zero;
         panel.transform.DOScale(1f, 0.35f).SetEase(Ease.OutBack);
+        panel.transform.DOScale(1f, 0.35f).SetEase(Ease.OutBack).SetDelay(0.6f);
     }
 
     void OnEnable()

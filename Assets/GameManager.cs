@@ -68,7 +68,7 @@ public class GameManager : MonoBehaviour
         KnivesLeftChanged?.Invoke(KnivesLeft);
     }
 
-    private void HandleKnifeStuck()
+    private void HandleKnifeStuck(Vector2 hitPoint)
     {
         if (State != GameState.Playing) return;
 
