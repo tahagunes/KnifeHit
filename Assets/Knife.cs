@@ -7,7 +7,7 @@ public class Knife : MonoBehaviour
     [SerializeField] private float throwSpeed = 20f;
     [SerializeField] private float stickDepth = 0.3f;
     public static event Action Thrown;
-
+    public bool IsFlying => isThrown && !isStuck && !hasFailed;
     private Rigidbody2D rb;
     private bool isThrown = false;
     private bool isStuck = false;

@@ -9,6 +9,8 @@ public class GameUI : MonoBehaviour
     [SerializeField] private GameObject winPanel;
     [SerializeField] private GameObject losePanel;
     [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private Wallet wallet;
+    [SerializeField] private TextMeshProUGUI coinText;
 
     private void HandleStateChanged(GameState state)
     {
@@ -28,17 +30,20 @@ public class GameUI : MonoBehaviour
     {
         gameManager.KnivesLeftChanged += UpdateKnifeCount;
         gameManager.StateChanged += HandleStateChanged;
+        wallet.CoinsChanged += UpdateCoins;
     }
 
     void OnDisable()
     {
         gameManager.KnivesLeftChanged -= UpdateKnifeCount;
         gameManager.StateChanged -= HandleStateChanged;
+        wallet.CoinsChanged -= UpdateCoins;
     }
 
     void Start()
     {
         UpdateKnifeCount(gameManager.KnivesLeft);
+        UpdateCoins(wallet.Coins);
         winPanel.SetActive(false);
         losePanel.SetActive(false);
         levelText.text = "Seviye " + (gameManager.CurrentLevel + 1);
@@ -47,5 +52,10 @@ public class GameUI : MonoBehaviour
     private void UpdateKnifeCount(int count)
     {
         knifeCountText.text = "Bıçak: " + count;
+    }
+
+    private void UpdateCoins(int coins)
+    {
+        coinText.text = "Coin: " + coins;
     }
 }

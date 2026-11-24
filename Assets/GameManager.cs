@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
     private const string LevelKey = "CurrentLevel";
     public int CurrentLevel { get; private set; }
     public bool CanThrow => State == GameState.Playing && KnivesLeft > 0;
+    public LevelData CurrentLevelData { get; private set; }
 
     public void Restart()
     {
@@ -41,6 +42,7 @@ public class GameManager : MonoBehaviour
 
         KnivesLeft = level.knifeCount;
         targetRotator.SetSpeed(level.rotationSpeed);
+        CurrentLevelData = levels[CurrentLevel % levels.Length];
     }
 
     public void NextLevel()
@@ -93,4 +95,5 @@ public class LevelData
 {
     public int knifeCount = 7;
     public float rotationSpeed = 150f;
+    public int appleCount = 1;
 }
