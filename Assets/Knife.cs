@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class Knife : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class Knife : MonoBehaviour
     private bool isThrown = false;
     private bool isStuck = false;
     private bool hasFailed = false;
+    public static event Action Stuck;
+    public static event Action Failed;
 
     void Awake()
     {
@@ -47,11 +50,12 @@ public class Knife : MonoBehaviour
             transform.position = center + outward * (radius + halfLength - stickDepth);
 
             transform.SetParent(collision.transform, true);
+            Stuck?.Invoke();
         }
         else if (collision.gameObject.CompareTag("Knife"))
         {
-            Debug.Log("Game Over");
-             Fail();
+            Failed?.Invoke();
+            Fail();
         }
     }
 
@@ -63,8 +67,8 @@ public class Knife : MonoBehaviour
 
         rb.constraints = RigidbodyConstraints2D.None;
         rb.gravityScale = 3f;
-        rb.linearVelocity = new Vector2(Random.Range(-3f, 3f), -5f);
-        rb.angularVelocity = Random.Range(-720f, 720f);
+        rb.linearVelocity = new Vector2(UnityEngine.Random.Range(-3f, 3f), -5f);
+        rb.angularVelocity = UnityEngine.Random.Range(-720f, 720f);
 
         Destroy(gameObject, 2f);
 

@@ -3,7 +3,8 @@ using UnityEngine.InputSystem;
 
 public class KnifeThrower : MonoBehaviour
 {
-    [SerializeField] private GameObject knifePrefab;
+    [SerializeField] private GameManager gameManager;
+    [SerializeField] private Knife knifePrefab;
     private Knife currentKnife;
 
     void Start()
@@ -13,26 +14,21 @@ public class KnifeThrower : MonoBehaviour
 
     void Update()
     {
-        if (Pointer.current != null && Pointer.current.press.wasPressedThisFrame)
+        if (Pointer.current == null || !Pointer.current.press.wasPressedThisFrame) return;
+        if (currentKnife == null || !gameManager.CanThrow) return;
+
+        gameManager.RegisterThrow();
+        currentKnife.Throw();
+        currentKnife = null;
+
+        if (gameManager.KnivesLeft > 0)
         {
-            Debug.Log("Touch detected!");
-            if (currentKnife != null)
-            {
-                currentKnife.Throw();
-                currentKnife = null;
-                Invoke(nameof(SpawnKnife), 0.15f);
-                Debug.Log("Knife thrown!");
-            }
-            else
-            {
-                Debug.Log("currentKnife is null!");
-            }
+            Invoke(nameof(SpawnKnife), 0.15f);
         }
     }
 
     void SpawnKnife()
-    {
-        GameObject knifeInstance = Instantiate(knifePrefab, transform.position, Quaternion.identity);
-        currentKnife = knifeInstance.GetComponent<Knife>();
-    }
+{
+    currentKnife = Instantiate(knifePrefab, transform.position, Quaternion.identity);
+}
 }
