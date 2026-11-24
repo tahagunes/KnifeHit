@@ -7,6 +7,7 @@ public class GameUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI knifeCountText;
     [SerializeField] private GameObject winPanel;
     [SerializeField] private GameObject losePanel;
+    [SerializeField] private TextMeshProUGUI levelText;
 
     void OnEnable()
     {
@@ -25,6 +26,7 @@ public class GameUI : MonoBehaviour
         UpdateKnifeCount(gameManager.KnivesLeft);
         winPanel.SetActive(false);
         losePanel.SetActive(false);
+        levelText.text = "Seviye " + (gameManager.CurrentLevel + 1);
     }
 
     private void UpdateKnifeCount(int count)
