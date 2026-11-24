@@ -6,9 +6,16 @@ public class LevelBuilder : MonoBehaviour
     [SerializeField] private Transform target;
     [SerializeField] private Apple applePrefab;
     [SerializeField] private Knife knifePrefab;
+    [SerializeField] private Color bossColor = new Color(0.5f, 0.1f, 0.1f);
 
     void Start()
     {
+        if (gameManager.CurrentLevelData.isBoss)
+        {
+            target.GetComponent<SpriteRenderer>().color = bossColor;
+            target.localScale *= 1.2f;
+        }
+
         float radius = target.GetComponent<CircleCollider2D>().radius * target.lossyScale.x;
         int count = gameManager.CurrentLevelData.appleCount;
 

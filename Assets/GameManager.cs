@@ -38,11 +38,10 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
 
         CurrentLevel = PlayerPrefs.GetInt(LevelKey, 0);
-        LevelData level = levels[CurrentLevel % levels.Length];
-
-        KnivesLeft = level.knifeCount;
-        targetRotator.SetSpeed(level.rotationSpeed);
         CurrentLevelData = levels[CurrentLevel % levels.Length];
+
+        KnivesLeft = CurrentLevelData.knifeCount;
+        targetRotator.Configure(CurrentLevelData.rotationSpeed, CurrentLevelData.isBoss);
     }
 
     public void NextLevel()
@@ -97,4 +96,6 @@ public class LevelData
     public float rotationSpeed = 150f;
     public int appleCount = 1;
     public int obstacleKnives = 0;
+    public bool isBoss = false;
+    public int bossReward = 10; 
 }
