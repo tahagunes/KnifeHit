@@ -1,4 +1,6 @@
 using UnityEngine;
+using System;
+using UnityEngine.SceneManagement;
 
 public enum GameState
 {
@@ -13,8 +15,21 @@ public class GameManager : MonoBehaviour
 
     public GameState State { get; private set; } = GameState.Playing;
     public int KnivesLeft { get; private set; }
+    public event Action<int> KnivesLeftChanged;
+    public event Action<GameState> StateChanged;
 
     public bool CanThrow => State == GameState.Playing && KnivesLeft > 0;
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    private void SetState(GameState newState)
+{
+    State = newState;
+    StateChanged?.Invoke(State);
+}
 
     void Awake()
     {
@@ -37,6 +52,7 @@ public class GameManager : MonoBehaviour
     public void RegisterThrow()
     {
         KnivesLeft--;
+        KnivesLeftChanged?.Invoke(KnivesLeft);
     }
 
     private void HandleKnifeStuck()
@@ -45,7 +61,7 @@ public class GameManager : MonoBehaviour
 
         if (KnivesLeft == 0)
         {
-            State = GameState.Won;
+            SetState(GameState.Won);
             Debug.Log("Kazandın!");
         }
     }
@@ -54,7 +70,7 @@ public class GameManager : MonoBehaviour
     {
         if (State != GameState.Playing) return;
 
-        State = GameState.Lost;
+        SetState(GameState.Lost);
         Debug.Log("Kaybettin!");
     }
 }
