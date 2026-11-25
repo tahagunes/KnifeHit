@@ -11,13 +11,12 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioClip failClip;
     [SerializeField] private AudioClip winClip;
 
-    private const string MuteKey = "Muted";
 
     public bool IsMuted => source.mute;
 
     void Awake()
     {
-        source.mute = PlayerPrefs.GetInt(MuteKey, 0) == 1;
+        source.mute = PlayerPrefs.GetInt(SaveKeys.Muted, 0) == 1;
     }
 
     void OnEnable()
@@ -54,7 +53,7 @@ public class SoundManager : MonoBehaviour
     public void ToggleMute()
     {
         source.mute = !source.mute;
-        PlayerPrefs.SetInt(MuteKey, source.mute ? 1 : 0);
+        PlayerPrefs.SetInt(SaveKeys.Muted, source.mute ? 1 : 0);
         PlayerPrefs.Save();
     }
 }

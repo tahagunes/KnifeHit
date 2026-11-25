@@ -88,7 +88,7 @@ private void StickTo(Transform target, Vector2 center, float radius, Vector2 out
     rb.linearVelocity = Vector2.zero;
     rb.bodyType = RigidbodyType2D.Kinematic;
 
-    float halfLength = transform.lossyScale.y * 0.5f;
+    float halfLength = GetComponent<BoxCollider2D>().size.y * transform.lossyScale.y * 0.5f;
     transform.rotation = Quaternion.FromToRotation(Vector3.up, -outward);
     transform.position = center + outward * (radius + halfLength - stickDepth);
 

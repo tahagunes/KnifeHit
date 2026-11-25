@@ -4,14 +4,13 @@ using UnityEngine;
 public class Wallet : MonoBehaviour
 {
     [SerializeField] private GameManager gameManager;
-    private const string CoinsKey = "Coins";
 
     public int Coins { get; private set; }
     public event Action<int> CoinsChanged;
 
     void Awake()
     {
-        Coins = PlayerPrefs.GetInt(CoinsKey, 0);
+        Coins = PlayerPrefs.GetInt(SaveKeys.Coins, 0);
     }
 
     void OnEnable()
@@ -37,7 +36,7 @@ public class Wallet : MonoBehaviour
     public void Add(int amount)
     {
         Coins += amount;
-        PlayerPrefs.SetInt(CoinsKey, Coins);
+        PlayerPrefs.SetInt(SaveKeys.Coins, Coins);
         PlayerPrefs.Save();
         CoinsChanged?.Invoke(Coins);
     }

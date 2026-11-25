@@ -10,6 +10,7 @@ public class LevelBuilder : MonoBehaviour
 
     void Start()
     {
+        var random = new System.Random(gameManager.CurrentLevelData.seed + 1000);
         if (gameManager.CurrentLevelData.isBoss)
         {
             target.GetComponent<SpriteRenderer>().color = bossColor;
@@ -33,7 +34,7 @@ public class LevelBuilder : MonoBehaviour
 
         for (int i = 0; i < obstacleCount; i++)
         {
-            float angle = Random.Range(0f, 360f);
+            float angle = (float)(random.NextDouble() * 360.0);
             Knife knife = Instantiate(knifePrefab);
             knife.PlaceOnTarget(target, angle);
         }

@@ -15,16 +15,30 @@ public class GameManager : MonoBehaviour
     public int KnivesLeft { get; private set; }
     public event Action<int> KnivesLeftChanged;
     public event Action<GameState> StateChanged;
-    [SerializeField] private LevelData[] levels;
+    [SerializeField] private LevelGenSettings genSettings;
+    [SerializeField] private float knifeWidth = 0.2f;
+    [SerializeField] private float knifeSpacing = 1.5f;
     [SerializeField] private TargetRotator targetRotator;
-    private const string LevelKey = "CurrentLevel";
     public int CurrentLevel { get; private set; }
     public bool CanThrow => State == GameState.Playing && KnivesLeft > 0;
     public LevelData CurrentLevelData { get; private set; }
 
     public void Restart()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void GoToMenu()
+    {
+        LoadScene("MainMenu");
+    }
+
+    private void LoadScene(string sceneName)
+    {
+        if (SceneLoader.Instance != null)
+            SceneLoader.Instance.Load(sceneName);
+        else
+            SceneManager.LoadScene(sceneName);
     }
 
     private void SetState(GameState newState)
@@ -37,16 +51,24 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        CurrentLevel = PlayerPrefs.GetInt(LevelKey, 0);
-        CurrentLevelData = levels[CurrentLevel % levels.Length];
+        CurrentLevel = PlayerPrefs.GetInt(SaveKeys.Level, 0);
+        CurrentLevelData = LevelGenerator.Generate(CurrentLevel + 1, CalculateSlotCount(), genSettings);
 
         KnivesLeft = CurrentLevelData.knifeCount;
         targetRotator.Configure(CurrentLevelData.rotationSpeed, CurrentLevelData.isBoss);
     }
 
+    private int CalculateSlotCount()
+    {
+        var circle = targetRotator.GetComponent<CircleCollider2D>();
+        float radius = circle.radius * targetRotator.transform.lossyScale.x;
+        float circumference = 2f * Mathf.PI * radius;
+        return Mathf.FloorToInt(circumference / (knifeWidth * knifeSpacing));
+    }
+
     public void NextLevel()
     {
-        PlayerPrefs.SetInt(LevelKey, CurrentLevel + 1);
+        PlayerPrefs.SetInt(SaveKeys.Level, CurrentLevel + 1);
         PlayerPrefs.Save();
         Restart();
     }
@@ -92,10 +114,11 @@ public class GameManager : MonoBehaviour
 [System.Serializable]
 public class LevelData
 {
-    public int knifeCount = 7;
-    public float rotationSpeed = 150f;
-    public int appleCount = 1;
-    public int obstacleKnives = 0;
-    public bool isBoss = false;
-    public int bossReward = 10; 
+    public int knifeCount;
+    public float rotationSpeed;
+    public int appleCount;
+    public int obstacleKnives;
+    public bool isBoss;
+    public int bossReward;
+    public int seed;
 }
