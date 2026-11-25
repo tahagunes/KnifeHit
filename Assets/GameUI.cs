@@ -1,83 +1,107 @@
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameUI : MonoBehaviour
 {
     [SerializeField] private GameManager gameManager;
-    [SerializeField] private TextMeshProUGUI knifeCountText;
-    [SerializeField] private GameObject winPanel;
-    [SerializeField] private GameObject losePanel;
-    [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private Wallet wallet;
     [SerializeField] private TextMeshProUGUI coinText;
     [SerializeField] private TextMeshProUGUI bossText;
-    [SerializeField] private TextMeshProUGUI rewardText;
 
-    private void HandleStateChanged(GameState state)
-    {
-        if (state == GameState.Won)
-        {
-            LevelData level = gameManager.CurrentLevelData;
-            rewardText.gameObject.SetActive(level.isBoss);
-            rewardText.text = "+" + level.bossReward + " Coin";
-            ShowPanel(winPanel);
-        }
-        if (state == GameState.Lost) ShowPanel(losePanel);
-    }
+    [Header("Seviye ilerlemesi")]
+    [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private TextMeshProUGUI bossInfoText;
 
-    private void ShowPanel(GameObject panel)
-    {
-        panel.SetActive(true);
-        panel.transform.localScale = Vector3.zero;
-        panel.transform.DOScale(1f, 0.35f).SetEase(Ease.OutBack);
-        panel.transform.DOScale(1f, 0.35f).SetEase(Ease.OutBack).SetDelay(0.6f);
-    }
+    [Header("Paneller")]
+    [SerializeField] private GameObject winPanel;
+    [SerializeField] private GameObject losePanel;
+    [SerializeField] private TextMeshProUGUI earnedText;
+    [SerializeField] private TextMeshProUGUI loseLevelText;
+
+    private int coinsAtStart;
 
     void OnEnable()
     {
-        gameManager.KnivesLeftChanged += UpdateKnifeCount;
         gameManager.StateChanged += HandleStateChanged;
         wallet.CoinsChanged += UpdateCoins;
     }
 
     void OnDisable()
     {
-        gameManager.KnivesLeftChanged -= UpdateKnifeCount;
         gameManager.StateChanged -= HandleStateChanged;
         wallet.CoinsChanged -= UpdateCoins;
     }
 
     void Start()
     {
-        UpdateKnifeCount(gameManager.KnivesLeft);
-        UpdateCoins(wallet.Coins);
         winPanel.SetActive(false);
         losePanel.SetActive(false);
+        UpdateCoins(wallet.Coins);
+        coinsAtStart = wallet.Coins;
+
+        UpdateLevelTexts();
+        PlayBossIntro();
+    }
+
+    // The dots themselves are handled by StageProgressUI.
+    private void UpdateLevelTexts()
+    {
+        int cycleLength = gameManager.CycleLength;
+        int position = gameManager.CyclePosition;
+        bool isBoss = gameManager.CurrentLevelData.isBoss;
+
         levelText.text = "Seviye " + (gameManager.CurrentLevel + 1);
 
+        int levelsToBoss = cycleLength - 1 - position;
+        bossInfoText.color = isBoss ? UITheme.Warning : Color.white;
+        bossInfoText.text = isBoss ? "BOSS SEVİYESİ" : "Boss'a " + levelsToBoss + " seviye";
+    }
+
+    private void PlayBossIntro()
+    {
         bool isBoss = gameManager.CurrentLevelData.isBoss;
         bossText.gameObject.SetActive(isBoss);
+        if (!isBoss) return;
 
-        if (isBoss)
+        bossText.transform.localScale = Vector3.zero;
+        Sequence sequence = DOTween.Sequence().SetLink(bossText.gameObject);
+        sequence.Append(bossText.transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack));
+        sequence.AppendInterval(1f);
+        sequence.Append(bossText.transform.DOScale(0f, 0.2f).SetEase(Ease.InBack));
+    }
+
+    private void HandleStateChanged(GameState state)
+    {
+        if (state == GameState.Won)
         {
-            levelText.text += " - BOSS";
-
-            bossText.transform.localScale = Vector3.zero;
-            Sequence sequence = DOTween.Sequence();
-            sequence.Append(bossText.transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack));
-            sequence.AppendInterval(1f);
-            sequence.Append(bossText.transform.DOScale(0f, 0.2f).SetEase(Ease.InBack));
+            bossText.gameObject.SetActive(false);
+            ShowPanel(winPanel);
+        }
+        else if (state == GameState.Lost)
+        {
+            bossText.gameObject.SetActive(false);
+            loseLevelText.text = "Seviye " + (gameManager.CurrentLevel + 1);
+            ShowPanel(losePanel);
         }
     }
 
-    private void UpdateKnifeCount(int count)
+    // Wallet also listens to StateChanged and the listener order is not guaranteed, so the earned
+    // amount is read in OnStart, after the delay, when every listener (incl. the boss reward) has run.
+    private void ShowPanel(GameObject panel)
     {
-        knifeCountText.text = "Bıçak: " + count;
+        panel.SetActive(true);
+        panel.transform.localScale = Vector3.zero;
+        panel.transform.DOScale(1f, 0.35f)
+            .SetEase(Ease.OutBack)
+            .SetDelay(0.6f)
+            .OnStart(() => earnedText.text = "+" + (wallet.Coins - coinsAtStart))
+            .SetLink(panel);
     }
 
     private void UpdateCoins(int coins)
     {
-        coinText.text = "Coin: " + coins;
+        coinText.text = coins.ToString();
     }
 }

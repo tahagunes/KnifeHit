@@ -22,6 +22,9 @@ public class GameManager : MonoBehaviour
     public int CurrentLevel { get; private set; }
     public bool CanThrow => State == GameState.Playing && KnivesLeft > 0;
     public LevelData CurrentLevelData { get; private set; }
+    public int CycleLength => genSettings.cycleLength;
+    // 0-based position of the current level inside the boss cycle (last position is the boss).
+    public int CyclePosition => CurrentLevel % genSettings.cycleLength;
 
     public void Restart()
     {
@@ -68,9 +71,15 @@ public class GameManager : MonoBehaviour
 
     public void NextLevel()
     {
+        SaveProgress();
+        Restart();
+    }
+
+    // Saved as soon as the level is won, so leaving via the menu button keeps the progress.
+    private void SaveProgress()
+    {
         PlayerPrefs.SetInt(SaveKeys.Level, CurrentLevel + 1);
         PlayerPrefs.Save();
-        Restart();
     }
 
     void OnEnable()
@@ -97,6 +106,7 @@ public class GameManager : MonoBehaviour
 
         if (KnivesLeft == 0)
         {
+            SaveProgress();
             SetState(GameState.Won);
             Debug.Log("Kazandın!");
         }
