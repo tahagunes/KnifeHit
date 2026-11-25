@@ -11,7 +11,7 @@ public class MainMenu : MonoBehaviour
         int level = PlayerPrefs.GetInt(SaveKeys.Level, 0);
         int coins = PlayerPrefs.GetInt(SaveKeys.Coins, 0);
 
-        coinText.text = coins.ToString();
+        coinText.text = "Coin: " + coins;
         playButtonText.text = "Oyna - Seviye " + (level + 1);
     }
 
